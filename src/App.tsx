@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { motion } from "framer-motion";
+import { useRef } from "react";
 
 const Wrapper = styled.div`
   height: 100vh;
@@ -9,64 +10,50 @@ const Wrapper = styled.div`
   align-items: center;
 `;
 
+const BiggerBox = styled.div`
+  width: 600px;
+  height: 600px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 const Box = styled(motion.div)`
   width: 200px;
   height: 200px;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 1);
   border-radius: 40px;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.1);
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-`;
-
-const Circle = styled(motion.div)`
-  background-color: white;
-  height: 70px;
-  width: 70px;
-  border-radius: 40px;
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.1);
-  place-self: center;
 `;
 
 const boxVariants = {
-  start: {
-    opacity: 0,
-    scale: 0.5,
-  },
-  end: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      type: "spring",
-      duration: 0.5,
-      bounce: 0.5,
-      delayChildren: 0.5,
-      staggerChildren: 0.2,
-    },
-  },
-};
-
-const circleVariants = {
-  start: {
-    opacity: 0,
-    y: 10,
-  },
-  end: {
-    opacity: 1,
-    y: 0,
-  },
+  hover: { scale: 1.5, rotateZ: 90 },
+  click: { scale: 1, borderRadius: "100px" },
 };
 
 function App() {
+  const biggerBoxRef = useRef<HTMLDivElement>(null);
   return (
     <Wrapper>
-      {/*기본적으로 motion은 Box에 있는 intial의 값, animate의 값을 자식들에게 자동으로 적용한다 */}
-      <Box variants={boxVariants} initial='start' animate='end'>
-        <Circle variants={circleVariants} />
-        <Circle variants={circleVariants} />
-        <Circle variants={circleVariants} />
-        <Circle variants={circleVariants} />
-      </Box>
+      <BiggerBox ref={biggerBoxRef}>
+        <Box
+          //x,y옵션으로 x,y축으로만 움직이게 제약 가능
+          drag
+          //dragging이 허용될 수 있는 영역
+          dragConstraints={biggerBoxRef}
+          //드래그 후 제자리로 오게한다
+          dragSnapToOrigin
+          //값을 1로 지정하면 마우스 포인트와 같이 움직인다
+          //0일때는 제한한 영역 안에서만 움직인다
+          dragElastic={0}
+          variants={boxVariants}
+          whileDrag='drag'
+          whileHover='hover'
+          whileTap='click'
+        />
+      </BiggerBox>
     </Wrapper>
   );
 }
