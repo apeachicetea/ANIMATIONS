@@ -8,6 +8,7 @@ const Wrapper = styled(motion.div)`
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
 `;
 
 const Box = styled(motion.div)`
@@ -15,49 +16,71 @@ const Box = styled(motion.div)`
   width: 500px;
   background: white;
   border-radius: 30px;
+  display: flex;
   position: absolute;
-  top: 100px;
+  top: 150px;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
 `;
 
-const boxVariants = {
-  initial: {
+const box = {
+  entry: (custom: boolean) => ({
+    x: custom ? -500 : 500,
     opacity: 0,
     scale: 0,
-  },
-  visible: {
+  }),
+  center: {
+    x: 0,
     opacity: 1,
     scale: 1,
-    rotateZ: 360,
+    transition: {
+      duration: 0.3,
+    },
   },
-  leaving: {
+  //custom 3
+  exit: (custom: boolean) => ({
+    x: custom ? 500 : -500,
     opacity: 0,
     scale: 0,
-    y: 50,
-  },
+    transition: {
+      duration: 0.3,
+    },
+  }),
 };
 
 function App() {
-  const [showing, setShowing] = useState(false);
-
-  const onClick = () => {
-    setShowing(!showing);
+  const [visible, setVisible] = useState(1);
+  const [back, setBack] = useState(false);
+  const nextPlease = () => {
+    setBack(false);
+    setVisible((prev) => (prev === 10 ? 10 : prev + 1));
   };
-
+  const prevPlease = () => {
+    setBack(true);
+    setVisible((prev) => (prev === 1 ? 1 : prev - 1));
+  };
   return (
     <Wrapper>
-      <button onClick={onClick}>Click</button>
-      {/* AnimatePresence은 엘리먼트가 사라지게 있다면 그걸 애니메이션 할 수 있게 해준다 */}
-      <AnimatePresence>
-        {showing ? (
-          <Box
-            variants={boxVariants}
-            initial='initial'
-            animate='visible'
-            //엘리먼트가 사라질때 에니메이션
-            exit='leaving'
-          />
-        ) : null}
+      {/* custom 2 */}
+      <AnimatePresence custom={back}>
+        <Box
+          //custom 1
+          custom={back}
+          variants={box}
+          initial='entry'
+          animate='center'
+          exit='exit'
+          //react는 key만 바뀌어도 엘리먼트가 바뀌었다고 인식한다
+          //그래서 react는 컴포넌트를 리랜더링하게 된다
+          //따라서 initial,animate,exit 애니메이션이 동작하게 된다.
+          key={visible}
+        >
+          {visible}
+        </Box>
       </AnimatePresence>
+      <button onClick={nextPlease}>Next</button>
+      <button onClick={prevPlease}>Prev</button>
     </Wrapper>
   );
 }
