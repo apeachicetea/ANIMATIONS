@@ -1,8 +1,8 @@
 import styled from "styled-components";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 
-const Wrapper = styled(motion.div)`
+const Wrapper = styled.div`
   height: 100vh;
   width: 100vw;
   display: flex;
@@ -10,40 +10,56 @@ const Wrapper = styled(motion.div)`
   align-items: center;
 `;
 
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 50vw;
+  div:first-child,
+  div:last-child {
+    grid-column: span 2;
+  }
+`;
+
 const Box = styled(motion.div)`
   height: 300px;
-  width: 300px;
   background: white;
   border-radius: 30px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   font-size: 28px;
 `;
 
-const Circle = styled(motion.div)`
-  background-color: #00a5ff;
-  height: 100px;
-  width: 100px;
-  border-radius: 50px;
+const Overlay = styled(motion.div)`
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 function App() {
-  const [clicked, setClicked] = useState(false);
-  const toggleClicked = () => setClicked((prev) => !prev);
+  const [id, setId] = useState<null | string>(null);
+  console.log(id);
+
   return (
-    <Wrapper onClick={toggleClicked}>
-      {/* 같은 layoutId를 주게 되면 두 움직임에 대한 애니메이션을 자동으로 부여해준다 */}
-      <Box>
-        {!clicked ? (
-          <Circle layoutId='circle' style={{ borderRadius: 50 }} />
+    <Wrapper>
+      <Grid>
+        {[1, 2, 3, 4].map((n) => (
+          <Box onClick={() => setId(String(n))} key={n} layoutId={String(n)} />
+        ))}
+      </Grid>
+      <AnimatePresence>
+        {id ? (
+          <Overlay
+            onClick={() => setId(null)}
+            initial={{ backgroundColor: "rgba(0, 0, 0, 0)" }}
+            animate={{ backgroundColor: "rgba(0, 0, 0, 1)" }}
+            exit={{ backgroundColor: "rgba(0, 0, 0, 0)" }}
+          >
+            <Box layoutId={id} style={{ height: 300, width: 400 }}></Box>
+          </Overlay>
         ) : null}
-      </Box>
-      <Box>
-        {clicked ? (
-          <Circle layoutId='circle' style={{ borderRadius: 0, scale: 2 }} />
-        ) : null}{" "}
-      </Box>
+      </AnimatePresence>
     </Wrapper>
   );
 }
